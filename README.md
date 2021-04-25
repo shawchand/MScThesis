@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages now
+## Master Thesis on identfying selection in S gene
 
 You can use the [editor on GitHub](https://github.com/shawchand/MScThesis/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
 
