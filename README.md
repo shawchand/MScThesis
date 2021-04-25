@@ -1,6 +1,6 @@
 ## Master Thesis on identfying selection in S gene
 
-To run the Branch Models and Site Models locally, download the code [from GitHub] (https://github.com/shawchand/MScThesis) and in terminal navigate to the directories where the models are defined and run the following command:
+To run the Branch Models and Site Models locally, download the code from <link rel="canonical" href="/SARS-CoV-2-RBD_MAP_clinical_Abs/" /> https://github.com/shawchand/MScThesis and in terminal navigate to the directories where the models are defined and run the following command:
 
 CODEML
 
