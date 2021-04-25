@@ -1,37 +1,11 @@
 ## Master Thesis on identfying selection in S gene
 
-You can use the [editor on GitHub](https://github.com/shawchand/MScThesis/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+To run the Branch Models and Site Models locally, download the from https://github.com/shawchand/MScThesis and in terminal navigate to the directories where the models are defined and run the following command:
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+CODEML
 
-### Markdown
+Results are generated in the "results" folder under each model.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
+PAML_plots_for_Thesis.html contains some plots done in R, the data for which has been obtained from the CODEML analysis of the Site Models.
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/shawchand/MScThesis/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
