@@ -1,0 +1,272 @@
+---
+title: "PAML Plotting"
+author: "Chandni Shaw Gupta"
+date: "4/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(cowplot)  # For theme
+library(lubridate)
+library(ggsci)
+library(ggrepel)
+library(ggplot2)
+```
+
+
+#M7 Site Model
+```{r}
+hist(rbeta(10^4, shape1 = 0.02627, shape2 = 0.39181),col="red")
+```
+
+
+#M8 Site Model
+```{r}
+M8 <- tibble(     proportion = c(0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.09861,  0.01390),
+                  omega = c(0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00002,  0.00032,  0.00364,  0.03140,  0.23811,  3.46433))
+knitr::kable(M8,align = "c",col.names = c("proportion","omega"))
+```
+
+
+#Dotplot
+```{r}
+ggplot(data = M8, aes(x=omega)) +
+  geom_dotplot(fill = "#BBDDFF") + 
+  xlab("Selective pressure [dN/dS]") + 
+  ylab("Proportion of sites") 
+```
+
+```{r}
+ggplot(data = M8, aes(x=omega)) +
+  geom_histogram(fill = "orange") + 
+  xlab("Selective pressure [dN/dS]") + 
+  ylab("Proportion of sites") 
+```
+
+```{r}
+ggplot(data = M8, aes(x=omega)) +
+  geom_density(kernel = "gaussian", color = 'red') + 
+  xlab("Selective pressure [dN/dS]") + 
+  ylab("Proportion of sites") 
+```
+
+
+#For visualiztion of sites and their estimated dN/dS ratio
+```{r}
+df<-read.table("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/bebsm.txt", sep = "")
+```
+
+```{r}
+df$beb <- "No"
+df$beb[df$V13 > 0.50] <- "Yes"
+```
+
+NOte: 3rd to 13th column = BEB score for each class (10 neutral + 1 allowing positive selection).
+
+
+#dN/dS ratio for amino acid sites in whole S gene with RBD region marked
+```{r}
+ggplot(df, aes(V1, V15)) +
+  geom_point(aes(colour = factor(beb)))+
+  geom_vline(xintercept = c(410,510), linetype="dotted")+
+   xlab("Amino acid position") +
+     ylab("Selective pressure [dN/dS]") +
+    #ggtitle("Sites which have posterior probabilty > 50% of M8 Site Model") +
+theme(legend.position = c(1,1),
+        legend.justification = c(1,1))+
+  NULL
+
+ggsave("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/plots/bebsmpointwholeSgenewithRBD.png", height=4, width=7)
+```
+
+
+Note: We see that most sites are under strong purifying selection and the sites under positive selection represent only a small fraction.
+
+
+
+#For visualiztion of rst file of baseml for M8 site model
+```{r}
+df1<-read.csv("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/rstfilefrombaseml.csv", sep=",")
+```
+
+```{r}
+names(df1) 
+```
+
+```{r}
+df2 <- df1[order(df1$Corresponding.codon.Start.Pos),]
+```
+
+#count of transitions and transversions
+```{r}
+df2$fTransition.or.Transversion <- factor(df2$Transition.or.Transversion)
+subdata <- subset(df2, Transition.or.Transversion %in% c("ts", "tv"))
+```
+
+
+```{r}
+ggplot(data = df2, aes(x=Base.Position.of.Change, y=Transition.or.Transversion, color=Transition.or.Transversion)) +
+  geom_count(alpha=0.5)+
+  geom_vline(xintercept = c(1200,1530), linetype="dotted")+
+   xlab("Base position") +
+     ylab("Transition or Transversion") +
+    ggtitle("Base position with transitions and transversions") +
+  NULL
+```
+
+
+
+```{r}
+ggplot(data = df2, aes(x=Transition.or.Transversion, fill=Transition.or.Transversion)) +
+  geom_bar()+
+  scale_fill_manual(values = c("#FFCC66", "#BBDDFF"))
+```
+
+```{r}
+df2$fSynonymous.or.NonSynonymous <- factor(df2$Synonymous.or.NonSynonymous)
+subdata1 <- subset(df2, Synonymous.or.NonSynonymous %in% c("syn", "nonsyn"))
+```
+
+```{r}
+ggplot(data = subdata1, aes(x=Base.Position.of.Change, y=Synonymous.or.NonSynonymous, color=Synonymous.or.NonSynonymous)) +
+  geom_count(alpha=0.5)+
+  geom_vline(xintercept = c(1200,1530), linetype="dotted")+
+   xlab("Base position") +
+     ylab("Synonymous or NonSynonymous") +
+    ggtitle("Base position with Synonymous or NonSynonymous changes") +
+  NULL
+```
+
+#For visualiztion of antibodiesand their escape rates
+```{r}
+antibodyescapemut<-read.csv("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/LYCoV016andREGNall.csv", sep=",")
+```
+
+```{r}
+names(antibodyescapemut)
+```
+
+
+```{r}
+ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
+  geom_point()+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  geom_vline(xintercept = c(450,510), linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+    # xlim(c(400,510)) +
+    ggtitle("Escape mutations at different sites in the Spike protein") +
+  NULL
+```
+
+```{r}
+antibodyescapemut$site_total.escapeoutput <- "No"
+antibodyescapemut$site_total.escapeoutput[antibodyescapemut$site_total.escape > 1] <- "Yes"
+```
+
+
+#Escape mutations at different sites in the Spike protein
+```{r}
+
+ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
+  geom_point(aes(colour = factor(site_total.escapeoutput)))+
+  scale_y_continuous(breaks = seq(0, 20, 5),
+                     limits = c(0, 20))+
+ scale_color_brewer(palette = "Set1") +
+  geom_vline(xintercept = c(450,510), linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+    ggtitle("Escape mutations at different sites in the Spike protein") +
+  NULL
+```
+
+#Escape mutation in RBD region
+```{r}
+ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
+  geom_point(shape=23, fill="blue", color="darkred", size=2)+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+     xlim(c(450,510)) +
+    ggtitle("Escape mutations at different sites in the RBD region") +
+  NULL
+```
+
+```{r}
+escdnds <- read.csv("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/EscapeFracanddNdS.csv", sep=",")
+names(escdnds)
+```
+
+
+```{r}
+escdndsdf <- escdnds %>% 
+  group_by(site) %>% 
+  summarise(n          = n(), 
+            dnds       = median(dNdS), 
+            esc_frac = median(site_total.escape))
+```
+
+```{r}
+ggplot(data = escdndsdf, mapping = aes(x=esc_frac,y=dnds, size=n)) +
+  geom_point() +
+  NULL
+```
+
+```{r}
+cor(escdndsdf$esc_frac, escdndsdf$dnds, method = "pearson")
+```
+
+```{r}
+#install.packages("corrplot")
+library(corrplot)
+```
+
+```{r}
+cr <- cor(escdndsdf)
+```
+
+
+```{r}
+corrplot(cr)
+```
+
+Note: Correlation is 0.0325, meaning there is a doubt whether it is a POSITIVE correlation between escape-fraction of mutation and dnds or there is no correlation between them as the correlation is very close to 0. So, the correlation test should be performed.
+
+
+
+#Testing the correlation
+```{r}
+cor.test(escdndsdf$esc_frac, escdndsdf$dnds, alternative = "two.sided", method = "pearson", conf.level = 0.95, continuity = FALSE)
+```
+
+Note: If p-value <= 0.05; it is statistically significant and we should reject the null hypothesis. Here, p-value >0.05 so we do not reject the null hypothesis (H0: correlation is 0). So, there is no significant correlation between escape-fraction of mutation and dnds.
+
+
+```{r}
+dfregression <- lm(dnds ~ esc_frac, data = escdndsdf) 
+```
+
+
+```{r}
+ggplot(data = escdndsdf, mapping = aes(x=esc_frac, y=dnds)) +
+  geom_point(aes(size=n)) + 
+  geom_smooth(method="lm")+
+  geom_smooth(method="loess") +
+  NULL
+```
+
+```{r}
+ggplot(data = escdndsdf, mapping = aes(x=esc_frac, y=dnds)) +
+  geom_point(aes(size=n)) + 
+  geom_smooth(aes(weight = n), color="blue", method="lm", show.legend = F) + 
+  geom_smooth(aes(weight = 1), color="red",  method="lm", show.legend = F) + 
+  NULL
+```
