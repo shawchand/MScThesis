@@ -152,18 +152,6 @@ names(antibodyescapemut)
 ```
 
 
-```{r}
-ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
-  geom_point()+
-  geom_hline(yintercept = 1, linetype="dotted")+
-  geom_vline(xintercept = c(450,510), linetype="dotted")+
-  facet_wrap(~condition)+
-   xlab("Amino acid position") +
-     ylab("Escape Fraction") +
-    # xlim(c(400,510)) +
-    ggtitle("Escape mutations at different sites in the Spike protein") +
-  NULL
-```
 
 ```{r}
 antibodyescapemut$site_total.escapeoutput <- "No"
@@ -199,6 +187,41 @@ ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
     ggtitle("Escape mutations at different sites in the RBD region") +
   NULL
 ```
+```{r}
+ggplot(antibodyescapemut, aes(label_site, site_total.escape, fill=dnds)) +
+  geom_point()+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+     xlim(c(450,510)) +
+    ggtitle("Escape mutations at different sites in the RBD region") +
+  NULL
+```
+
+```{r}
+ ggplot(antibodyescapemut, aes(label_site, site_total.escape)) +
+  #geom_point(shape=23, fill="blue", color="darkred", size=2)+
+   geom_point(aes(colour = cut(dnds, c(-Inf, 1, 2, Inf))),
+             size = 2) +
+  scale_color_manual(name = "dnds",
+                     values = c("(-Inf,1]" = "green",
+                                  "(1,2]" = "yellow",
+                                  "(2, Inf]" = "red"),
+                     labels = c("<= 1", "1 < dnds <= 2", "> 2"))+
+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+     xlim(c(450,510)) +
+    ggtitle("Escape mutations at different sites in the RBD region") +
+  NULL
+
+
+```
+
+
 
 ```{r}
 escdnds <- read.csv("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/EscapeFracanddNdS.csv", sep=",")
@@ -270,3 +293,121 @@ ggplot(data = escdndsdf, mapping = aes(x=esc_frac, y=dnds)) +
   geom_smooth(aes(weight = 1), color="red",  method="lm", show.legend = F) + 
   NULL
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+antibodyescapemutmodify<-read.csv("C:/Users/awila/OneDrive/Documents/GitHub/MScThesis/R/LYCoV016andREGNallmodify.csv", sep=",")
+```
+
+```{r}
+names(antibodyescapemutmodify)
+```
+
+
+```{r}
+antibodyescapemutmodify$site_total.escapeoutput <- "No"
+antibodyescapemutmodify$site_total.escapeoutput[antibodyescapemutmodify$site_total.escape > 1] <- "Yes"
+```
+
+
+#Escape mutations at different sites in the Spike protein
+```{r}
+
+ggplot(antibodyescapemutmodify, aes(label_site, site_total.escape)) +
+  geom_point(aes(colour = factor(site_total.escapeoutput)))+
+  scale_y_continuous(breaks = seq(0, 20, 5),
+                     limits = c(0, 20))+
+ scale_color_brewer(palette = "Set1") +
+  geom_vline(xintercept = c(450,510), linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+    ggtitle("Escape mutations at different sites in the Spike protein") +
+  NULL
+```
+
+#Escape mutation in RBD region
+```{r}
+ggplot(antibodyescapemutmodify, aes(label_site, site_total.escape)) +
+  geom_point(shape=23, fill="blue", color="darkred", size=2)+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+     xlim(c(450,510)) +
+    ggtitle("Escape mutations at different sites in the RBD region") +
+  NULL
+```
+
+
+
+```{r}
+ ggplot(antibodyescapemutmodify, aes(label_site, site_total.escape)) +
+   geom_point(aes(colour = cut(dnds, c(-Inf, 1, 2, Inf))),
+             size = 2) +
+  scale_color_manual(name = "dnds",
+                     values = c("(-Inf,1]" = "green",
+                                  "(1,2]" = "yellow",
+                                  "(2, Inf]" = "red"),
+                     labels = c("<= 1", "1 < dnds <= 2", "> 2"))+
+
+  geom_hline(yintercept = 1, linetype="dotted")+
+  facet_wrap(~condition)+
+   xlab("Amino acid position") +
+     ylab("Escape Fraction") +
+     xlim(c(450,510)) +
+    ggtitle("Escape mutations at different sites in the RBD region") +
+  NULL
+
+
+```
+
+```{r}
+escdndsdfmodify <- antibodyescapemutmodify %>% 
+  group_by(label_site) %>% 
+  summarise(n          = n(), 
+            dnds       = median(dnds), 
+            esc_frac = median(site_total.escape))
+```
+
+```{r}
+ggplot(data = escdndsdfmodify, mapping = aes(x=esc_frac,y=dnds, size=n)) +
+  geom_point() +
+  NULL
+```
+
+
+```{r}
+cor(escdndsdfmodify$esc_frac, escdndsdfmodify$dnds, method = "pearson")
+```
+
+```{r}
+cor.test(escdndsdfmodify$esc_frac, escdndsdfmodify$dnds, alternative = "two.sided", method = "pearson", conf.level = 0.95, continuity = FALSE)
+```
+
+
+```{r}
+dfregression <- lm(dnds ~ esc_frac, data = escdndsdfmodify) 
+```
+
+
+```{r}
+ggplot(data = escdndsdfmodify, mapping = aes(x=esc_frac, y=dnds)) +
+  geom_point(aes(size=n)) + 
+  geom_smooth(method="lm")+
+  geom_smooth(method="loess") +
+  NULL
+```
+
